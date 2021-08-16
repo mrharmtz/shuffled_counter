@@ -131,6 +131,19 @@ public:
         #endif
     }
 
+    shuffled_counter(const shuffled_counter& cpy)
+    :_value(cpy._value), _shuffle_order(NULL), _size(cpy._size), _allocator(cpy._allocator){
+        _shuffle_order = _allocator.allocate(_size);
+
+        for (IndexType* order = _shuffle_order, *cpy_iter = cpy._shuffle_order; cpy_iter != cpy._shuffle_order + cpy._size; ++order, ++cpy_iter)
+            _allocator.construct(order, *cpy_iter); 
+
+        #ifdef _SHUFFLE_COUNTER_DEBUG_
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            CNTR_DBG_FORMATLINE("shuffle_order = %lu", *order);
+        #endif
+    }
+
     ~shuffled_counter(){
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
             _allocator.destroy(order);
