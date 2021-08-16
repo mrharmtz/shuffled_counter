@@ -19,6 +19,11 @@ int main(int argc, const char* argv[]){
         unsigned_shuffled_counter my_other_counter(order);
         cout << "constructing my_counter_copy" << endl;
         unsigned_shuffled_counter my_counter_copy(my_counter);
+
+        cout << "my_counter value = " << (unsigned)my_counter << endl;
+        my_counter = (unsigned)1;
+        cout << "my_counter value = " << (unsigned)my_counter << endl;
+
     }catch(...){
         cout << "oops an exception was thrown" << endl;
     }

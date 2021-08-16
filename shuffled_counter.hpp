@@ -144,6 +144,15 @@ public:
         #endif
     }
 
+    shuffled_counter& operator=(const BaseType& value){
+        _value = value;
+        return *this;
+    }
+
+    operator BaseType() const{
+        return _value;
+    }
+
     ~shuffled_counter(){
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
             _allocator.destroy(order);
