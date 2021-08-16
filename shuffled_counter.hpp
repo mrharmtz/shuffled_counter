@@ -144,21 +144,25 @@ public:
         #endif
     }
 
-    shuffled_counter& operator=(const BaseType& value){
-        _value = value;
-        return *this;
-    }
-
-    operator BaseType() const{
-        return _value;
-    }
-
     ~shuffled_counter(){
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
             _allocator.destroy(order);
 
         _allocator.deallocate(_shuffle_order, _size);
     }
+
+    shuffled_counter& operator=(const BaseType& value){
+        _value = value;
+        return *this;
+    }
+
+    shuffled_counter& operator=(const shuffled_counter& value) = delete;
+
+    operator BaseType() const{
+        return _value;
+    }
+
+
 };
 
 typedef shuffled_counter<unsigned> unsigned_shuffled_counter;

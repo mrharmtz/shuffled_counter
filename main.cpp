@@ -24,6 +24,8 @@ int main(int argc, const char* argv[]){
         my_counter = (unsigned)1;
         cout << "my_counter value = " << (unsigned)my_counter << endl;
 
+        my_other_counter = (unsigned)my_counter;
+
     }catch(...){
         cout << "oops an exception was thrown" << endl;
     }
