@@ -60,9 +60,11 @@ public:
     template <typename Iterator>
     shuffled_counter(Iterator begin, Iterator end, BaseType value=0, const Allocator& allocatr = Allocator())
     :_value(value), _shuffle_order(NULL), _size(std::distance(begin, end)), _allocator(allocatr){
-        using traits_t = std::allocator_traits<decltype(_allocator)>;
+        
         _shuffle_order = _allocator.allocate(_size);
-        traits_t::construct(_allocator, _shuffle_order, 0);
+
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            _allocator.construct(order, 0); 
 
         CNTR_DBG_PRINTLINE("checking order");
         
@@ -95,9 +97,11 @@ public:
     template <typename Container>
     shuffled_counter(Container container, BaseType value=0, const Allocator& allocatr = Allocator())
     :_value(value), _shuffle_order(NULL), _size(std::size(container)), _allocator(allocatr){
-        using traits_t = std::allocator_traits<decltype(_allocator)>;
+        
         _shuffle_order = _allocator.allocate(_size);
-        traits_t::construct(_allocator, _shuffle_order, 0);
+
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            _allocator.construct(order, 0); 
 
         CNTR_DBG_PRINTLINE("checking order");
         
@@ -128,7 +132,10 @@ public:
     }
 
     ~shuffled_counter(){
-        delete[] _shuffle_order;
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            _allocator.destroy(order);
+
+        _allocator.deallocate(_shuffle_order, _size);
     }
 };
 
