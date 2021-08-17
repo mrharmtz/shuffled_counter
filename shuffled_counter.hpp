@@ -4,6 +4,8 @@
 #include <memory>
 #include <algorithm>
 
+#include "range_iteration.hpp"
+
 #define _SHUFFLE_COUNTER_DEBUG_
 
 #ifdef _SHUFFLE_COUNTER_DEBUG_
@@ -20,6 +22,9 @@
 #endif
 
 
+
+
+
 template <typename BaseType, typename IndexType=BaseType, typename Allocator=std::allocator<IndexType>>
 class shuffled_counter
 {
@@ -28,6 +33,23 @@ private:
     IndexType* _shuffle_order;
     IndexType _size;
     Allocator _allocator;
+
+    template <typename InputIterator>
+    void _allocate_shuffle_order(InputIterator cpy_order){
+        _shuffle_order = _allocator.allocate(_size);
+
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order, ++cpy_order){
+            _allocator.construct(order, *cpy_order); 
+        }
+    }
+
+    void _allocate_shuffle_order(){
+        _shuffle_order = _allocator.allocate(_size);
+
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            _allocator.construct(order, 0); 
+    }
+
 public:
 
     template <typename Iterator>
@@ -61,10 +83,7 @@ public:
     shuffled_counter(Iterator begin, Iterator end, BaseType value=0, const Allocator& allocatr = Allocator())
     :_value(value), _shuffle_order(NULL), _size(std::distance(begin, end)), _allocator(allocatr){
         
-        _shuffle_order = _allocator.allocate(_size);
-
-        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
-            _allocator.construct(order, 0); 
+        _allocate_shuffle_order();
 
         CNTR_DBG_PRINTLINE("checking order");
         
@@ -98,10 +117,7 @@ public:
     shuffled_counter(Container container, BaseType value=0, const Allocator& allocatr = Allocator())
     :_value(value), _shuffle_order(NULL), _size(std::size(container)), _allocator(allocatr){
         
-        _shuffle_order = _allocator.allocate(_size);
-
-        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
-            _allocator.construct(order, 0); 
+        _allocate_shuffle_order();
 
         CNTR_DBG_PRINTLINE("checking order");
         
@@ -131,12 +147,21 @@ public:
         #endif
     }
 
+    template <typename URnd>
+    shuffled_counter(IndexType size, URnd random_gen = URnd(), BaseType value=0, const Allocator& allocatr = Allocator())
+    :_value(value), _shuffle_order(NULL), _size(size), _allocator(allocatr){
+        _allocate_shuffle_order(range<IndexType>(_size).begin());
+
+        #ifdef _SHUFFLE_COUNTER_DEBUG_
+        for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
+            CNTR_DBG_FORMATLINE("shuffle_order = %lu", *order);
+        #endif
+    }
+
     shuffled_counter(const shuffled_counter& cpy)
     :_value(cpy._value), _shuffle_order(NULL), _size(cpy._size), _allocator(cpy._allocator){
-        _shuffle_order = _allocator.allocate(_size);
 
-        for (IndexType* order = _shuffle_order, *cpy_iter = cpy._shuffle_order; cpy_iter != cpy._shuffle_order + cpy._size; ++order, ++cpy_iter)
-            _allocator.construct(order, *cpy_iter); 
+        _allocate_shuffle_order(cpy._shuffle_order);
 
         #ifdef _SHUFFLE_COUNTER_DEBUG_
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
