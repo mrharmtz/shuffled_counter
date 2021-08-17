@@ -21,26 +21,26 @@ class range_iterator{
 
     private:
         BaseType _start;
-        BaseType _step;
         BaseType _stop;
+        BaseType _step;
 
         BaseType _value;
 
     public:
 
-        range_iterator(BaseType start, BaseType step, BaseType stop)
-        :_start(start), _step(step), _stop(stop), _value(_start){ 
-            RNG_DBG_FORMATLINE("start = %d, step = %d, stop = %d, value = %d",_start, _step, _stop, _value);
+        range_iterator(BaseType start, BaseType stop, BaseType step)
+        :_start(start), _stop(stop), _step(step), _value(_start){ 
+            RNG_DBG_FORMATLINE("start = %d, stop = %d, step = %d, value = %d",_start, _stop, _step, _value);
         }
 
         range_iterator(const range_iterator& cpy)
-        :_start(cpy._start), _step(cpy._step), _stop(cpy._stop), _value(cpy._value){
-            RNG_DBG_FORMATLINE("start = %d, step = %d, stop = %d, value = %d",_start, _step, _stop, _value);
+        :_start(cpy._start), _stop(cpy._stop), _step(cpy._step), _value(cpy._value){
+            RNG_DBG_FORMATLINE("start = %d, stop = %d, step = %d, value = %d",_start, _stop, _step, _value);
         }
 
         range_iterator()
-        :_start(default_start), _step(default_step), _stop(default_start), _value(_start){ 
-            RNG_DBG_FORMATLINE("start = %d, step = %d, stop = %d, value = %d",_start, _step, _stop, _value);
+        :_start(default_start), _stop(default_start), _step(default_step), _value(_start){ 
+            RNG_DBG_FORMATLINE("start = %d, stop = %d, step = %d, value = %d",_start, _stop, _step, _value);
         }
 
         range_iterator& operator= (const range_iterator& other){
@@ -119,14 +119,11 @@ class range
 private:
     range_iterator<BaseType, default_start, default_step> _iterator_mold;
 public:
-    range(BaseType start, BaseType step, BaseType stop)
-    :_iterator_mold(start,step,stop){ }
-
-    range(BaseType start, BaseType stop)
-    :_iterator_mold(start, default_step, stop){ }
+    range(BaseType start, BaseType stop, BaseType step=default_step)
+    :_iterator_mold(start,stop,step){ }
 
     range(BaseType stop)
-    :_iterator_mold(default_start, default_step, stop){ }
+    :_iterator_mold(default_start, stop, default_step){ }
 
     range(const range& cpy)
     :_iterator_mold(cpy._iterator_mold){ }
@@ -142,5 +139,6 @@ public:
     }
 };
 
+typedef range<int> irange;
 
 #endif

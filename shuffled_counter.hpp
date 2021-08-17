@@ -148,11 +148,11 @@ public:
     }
 
     template <typename URnd>
-    shuffled_counter(IndexType size, URnd random_gen = URnd(), BaseType value=0, const Allocator& allocatr = Allocator())
+    shuffled_counter(IndexType size, URnd&& random_gen = URnd(), BaseType value=0, const Allocator& allocatr = Allocator())
     :_value(value), _shuffle_order(NULL), _size(size), _allocator(allocatr){
         _allocate_shuffle_order(range<IndexType>(_size).begin());
 
-        std::shuffle(_shuffle_order, _shuffle_order + _size, random_gen);
+        std::shuffle(_shuffle_order, _shuffle_order + _size, std::move(random_gen));
 
         #ifdef _SHUFFLE_COUNTER_DEBUG_
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
@@ -178,17 +178,71 @@ public:
         _allocator.deallocate(_shuffle_order, _size);
     }
 
+    shuffled_counter& operator=(const shuffled_counter& value) = delete;
+
     shuffled_counter& operator=(const BaseType& value){
         _value = value;
         return *this;
     }
 
-    shuffled_counter& operator=(const shuffled_counter& value) = delete;
-
     operator BaseType() const{
         return _value;
     }
 
+    shuffled_counter operator+(const BaseType& value){
+        shuffled_counter ret_val(*this);
+
+        for (BaseType i = 0; i < value; i++)        
+            ret_val._value = next_value(ret_val._value, ret_val._shuffle_order, ret_val._shuffle_order + ret_val._size);
+
+        return ret_val;
+    }
+    shuffled_counter operator-(const BaseType& value){
+        shuffled_counter ret_val(*this);
+
+        for (BaseType i = 0; i < value; i++)        
+            ret_val._value = next_value(ret_val._value, ret_val._shuffle_order, ret_val._shuffle_order + ret_val._size, false);
+
+        return ret_val;
+    }
+    shuffled_counter& operator++(){
+        _value = next_value(_value, _shuffle_order, _shuffle_order + _size);
+        return *this;
+    }
+
+    shuffled_counter operator++(int){
+        shuffled_counter ret_val(*this);
+
+        _value = next_value(_value, _shuffle_order, _shuffle_order + _size);
+
+        return ret_val;
+    }
+
+    shuffled_counter& operator--(){
+        _value = next_value(_value, _shuffle_order, _shuffle_order + _size, false);
+        return *this;
+    }
+    shuffled_counter operator--(int){
+        shuffled_counter ret_val(*this);
+
+        _value = next_value(_value, _shuffle_order, _shuffle_order + _size, false);
+
+        return ret_val;
+    }
+
+    shuffled_counter& operator +=(const BaseType& value){
+        for (BaseType i = 0; i < value; i++)
+            _value = next_value(_value, _shuffle_order, _shuffle_order + _size);
+        
+        return *this;
+    }
+
+    shuffled_counter& operator -=(const BaseType& value){
+        for (BaseType i = 0; i < value; i++)
+            _value = next_value(_value, _shuffle_order, _shuffle_order + _size, false);
+        
+        return *this;
+    }
 
 };
 
