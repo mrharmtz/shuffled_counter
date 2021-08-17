@@ -152,6 +152,8 @@ public:
     :_value(value), _shuffle_order(NULL), _size(size), _allocator(allocatr){
         _allocate_shuffle_order(range<IndexType>(_size).begin());
 
+        std::shuffle(_shuffle_order, _shuffle_order + _size, random_gen);
+
         #ifdef _SHUFFLE_COUNTER_DEBUG_
         for (IndexType* order = _shuffle_order; order != _shuffle_order + _size; ++order)
             CNTR_DBG_FORMATLINE("shuffle_order = %lu", *order);
