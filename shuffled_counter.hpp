@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "range_iteration.hpp"
+#include "property_proxy.hpp"
 
 #define _SHUFFLE_COUNTER_DEBUG_
 
@@ -20,9 +21,6 @@
 #define CNTR_DBG_FORMATLINE(format, ...) 
 
 #endif
-
-
-
 
 
 template <typename BaseType, typename IndexType=BaseType, typename Allocator=std::allocator<IndexType>>
@@ -51,6 +49,7 @@ private:
     }
 
 public:
+    array_get_proxy<IndexType, IndexType> shuffle_order;
 
     template <typename Iterator>
     static BaseType next_value(BaseType value, Iterator order, Iterator end_order, bool inc_ndec=true){
@@ -81,7 +80,7 @@ public:
 
     template <typename Iterator>
     shuffled_counter(Iterator begin, Iterator end, BaseType value=0, const Allocator& allocatr = Allocator())
-    :_value(value), _shuffle_order(NULL), _size(std::distance(begin, end)), _allocator(allocatr){
+    :_value(value), _shuffle_order(NULL), _size(std::distance(begin, end)), _allocator(allocatr), shuffle_order(_shuffle_order, _size){
         
         _allocate_shuffle_order();
 
@@ -115,7 +114,7 @@ public:
 
     template <typename Container>
     shuffled_counter(Container container, BaseType value=0, const Allocator& allocatr = Allocator())
-    :_value(value), _shuffle_order(NULL), _size(std::size(container)), _allocator(allocatr){
+    :_value(value), _shuffle_order(NULL), _size(std::size(container)), _allocator(allocatr), shuffle_order(_shuffle_order, _size){
         
         _allocate_shuffle_order();
 
@@ -149,7 +148,7 @@ public:
 
     template <typename URnd>
     shuffled_counter(IndexType size, URnd&& random_gen = URnd(), BaseType value=0, const Allocator& allocatr = Allocator())
-    :_value(value), _shuffle_order(NULL), _size(size), _allocator(allocatr){
+    :_value(value), _shuffle_order(NULL), _size(size), _allocator(allocatr), shuffle_order(_shuffle_order, _size){
         _allocate_shuffle_order(range<IndexType>(_size).begin());
 
         std::shuffle(_shuffle_order, _shuffle_order + _size, std::move(random_gen));
@@ -161,7 +160,7 @@ public:
     }
 
     shuffled_counter(const shuffled_counter& cpy)
-    :_value(cpy._value), _shuffle_order(NULL), _size(cpy._size), _allocator(cpy._allocator){
+    :_value(cpy._value), _shuffle_order(NULL), _size(cpy._size), _allocator(cpy._allocator), shuffle_order(_shuffle_order, _size){
 
         _allocate_shuffle_order(cpy._shuffle_order);
 

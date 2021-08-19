@@ -24,21 +24,29 @@ int main(int argc, const char* argv[]){
         cout << "constructing my_counter_copy" << endl;
         unsigned_shuffled_counter my_counter_copy(my_counter);
         cout << "constructing random_counter" << endl;
-        unsigned_shuffled_counter random_counter(10, std::random_device());
+        unsigned_shuffled_counter random_counter(20, std::random_device());
 
         cout << "my_counter value = " << (unsigned)my_counter << endl;
         my_counter = (unsigned)1;
         cout << "my_counter value = " << (unsigned)my_counter << endl;
 
         random_counter = (unsigned)my_counter;
-
+        cout << "random_counter value = ";
         for (size_t i = 0; i < 100; i++)
         {
-            cout << "random_counter value = " << (unsigned)random_counter << endl;
+            cout << (unsigned)random_counter << ", ";
             ++random_counter;
         }
+        cout << (unsigned)random_counter << endl;
         
-        
+        random_counter = (unsigned)my_counter;
+        cout << endl << "random_counter value = " << (unsigned)random_counter << endl;
+        random_counter += 100;
+        cout << "random_counter value = " << (unsigned)random_counter << endl;
+
+        for(auto it = random_counter.shuffle_order.cbegin(); it != random_counter.shuffle_order.cend() ; ++it )
+            cout << "random_counter " << *it << endl;
+            
 
     }catch(...){
         cout << "oops an exception was thrown" << endl;
